@@ -17,7 +17,7 @@ pipeline {
                 sh '''
                     docker compose down
                     docker compose pull
-                    docker compose up --network host --build -d
+                    docker compose --network host up --build -d
                 '''
             }
         }
