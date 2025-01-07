@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "django-test"
+version = "0.1.0"
+description = ""
+authors = ["secrett2633 <secrett2633@kakao.com>"]
+readme = "README.md"
+packages = []
+
+[tool.poetry.dependencies]
+python = "3.10.11"
+django = "^4.2.7"
+psycopg2-binary = "^2.9.9"
+python-dotenv = "^1.0.0"
+psycopg = {extras = ["binary"], version = "^3.1.12"}
+djangorestframework = "^3.14.0"
+drf-spectacular = "^0.26.5"
+drf-nested-routers = "^0.93.4"
+djangorestframework-simplejwt = "^5.3.0"
+gunicorn = "^21.2.0"
+django-import-export = "^3.3.3"
+django-cors-headers = "^4.3.1"
+redis = "^5.0.1"
+django-redis = "^5.4.0"
+uvicorn = "^0.30.3"
+loguru = "^0.7.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
