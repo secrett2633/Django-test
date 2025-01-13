@@ -15,9 +15,9 @@ pipeline {
         stage('Build and Deploy') {
             steps {
                 script {
-                    docker compose down
-                    docker compose pull
-                    docker compose up --build -d
+                    bat 'docker-compose down'
+                    bat 'docker-compose pull'
+                    bat 'docker-compose up --build -d'
                 }
             }
         }
@@ -26,7 +26,7 @@ pipeline {
             steps {
                 script {
                     sleep 30  // 서비스 시작 대기
-                    docker compose ps
+                    bat 'docker-compose ps'
                 }
             }
         }
@@ -35,7 +35,7 @@ pipeline {
     post {
         failure {
             script {
-                docker compose logs
+                bat 'docker-compose logs'
             }
         }
     }
