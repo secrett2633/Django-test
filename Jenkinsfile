@@ -42,7 +42,7 @@ pipeline {
             steps {
                 script {
                     // 새로운 버전 배포
-                    bat "docker-compose -f docker-compose.${env.DEPLOY_COLOR}.yaml up -d --build"
+                    bat "docker-compose -f docker-compose.${env.DEPLOY_COLOR}.yml up -d --build"
                 }
             }
         }
@@ -102,7 +102,7 @@ pipeline {
                 script {
                     if (env.CURRENT_COLOR != null) {
                         // 이전 버전이 있다면 종료
-                        bat "docker-compose -f docker-compose.${env.CURRENT_COLOR}.yaml down"
+                        bat "docker-compose -f docker-compose.${env.CURRENT_COLOR}.yml down"
                     }
                 }
             }
@@ -113,10 +113,10 @@ pipeline {
         failure {
             script {
                 // 배포 실패시 로그 확인
-                bat "docker-compose -f docker-compose.${env.DEPLOY_COLOR}.yaml logs"
+                bat "docker-compose -f docker-compose.${env.DEPLOY_COLOR}.yml logs"
                 
                 // 롤백 - 새 버전 종료
-                bat "docker-compose -f docker-compose.${env.DEPLOY_COLOR}.yaml down"
+                bat "docker-compose -f docker-compose.${env.DEPLOY_COLOR}.yml down"
                 
                 // Nginx 설정 원복
                 if (env.CURRENT_COLOR) {
