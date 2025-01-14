@@ -6,7 +6,8 @@ services:
     container_name: test-proxy
     restart: always
     ports:
-      - "80:80"
+      - "8000:80"
+      - "8001:80"
     volumes:
       - ./nginx:/etc/nginx/conf.d
       - ./static:/usr/share/nginx/html/static
