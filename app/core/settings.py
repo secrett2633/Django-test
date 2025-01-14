@@ -130,7 +130,7 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATIC_DIR = Path(BASE_DIR).resolve().parent
 STATIC_ROOT = os.path.join(STATIC_DIR, "static")
-
+STATICFILES_DIRS = [os.path.join(STATIC_DIR, "static")]
 os.makedirs(STATIC_ROOT, exist_ok=True)
 
 # Default primary key field type
