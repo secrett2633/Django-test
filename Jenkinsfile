@@ -52,7 +52,7 @@ pipeline {
                         attempts++
                         try {
                             def response = bat(
-                                script: "curl -s http://localhost:${env.DEPLOY_PORT}/api/check",
+                                script: "curl -s http://localhost:${env.DEPLOY_PORT}/api/v1/test",
                                 returnStdout: true
                             ).trim()
                             
