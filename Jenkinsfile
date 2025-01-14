@@ -25,13 +25,18 @@ pipeline {
         stage('Determine Deploy Target') {
             steps {
                 script {
-                    def blueContainerOutput = bat(script: 'docker ps -q -f name=test-dev-blue', returnStdout: true).trim()
+                    def blueContainerOutput = powershell(
+                        script: '(docker ps -q -f name=test-dev-blue) -ne $null',
+                        returnStdout: true
+                    ).trim()
+                    
                     echo "blueContainerOutput: ${blueContainerOutput}"
                     
-                    // 컨테이너 ID가 존재하는지 확인 (빈 문자열이 아닌 경우)
-                    def blueContainerExists = blueContainerOutput.length() > 0
+                    // PowerShell의 출력을 boolean으로 변환
+                    def blueContainerExists = blueContainerOutput.toLowerCase() == 'true'
+
                     echo "blueContainerExists: ${blueContainerExists}"
-                    
+
                     env.CURRENT_COLOR = blueContainerExists ? 'blue' : 'green'
                     env.DEPLOY_COLOR = blueContainerExists ? 'green' : 'blue'
                     env.CURRENT_PORT = blueContainerExists ? '8000' : '8001'
