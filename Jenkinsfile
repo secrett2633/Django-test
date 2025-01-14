@@ -18,8 +18,6 @@ pipeline {
                 script {
                     // 기본 인프라 시작 (Nginx, Postgres, Redis)
                     bat 'docker-compose up -d'
-                    // 네트워크가 생성되어 있는지 확인하고 없으면 생성
-                    bat 'docker network create test-network || exit 0'
                 }
             }
         }
@@ -104,7 +102,7 @@ pipeline {
                 script {
                     if (env.CURRENT_COLOR != null) {
                         // 이전 버전이 있다면 종료 (기본 compose 파일과 함께 실행)
-                        bat "docker-compose -f docker-compose.yml -f docker-compose.${env.CURRENT_COLOR}.yml down --remove-orphans"
+                        bat "docker-compose -f docker-compose.${env.CURRENT_COLOR}.yml down --remove-orphans"
                     }
                 }
             }
