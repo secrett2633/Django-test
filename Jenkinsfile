@@ -102,7 +102,7 @@ pipeline {
                 script {
                     if (env.CURRENT_COLOR != null) {
                         // 이전 버전이 있다면 종료 (기본 compose 파일과 함께 실행)
-                        bat "docker-compose -f docker-compose.${env.CURRENT_COLOR}.yml down --remove-orphans"
+                        bat "docker-compose -f docker-compose.${env.CURRENT_COLOR}.yml down"
                     }
                 }
             }
@@ -116,7 +116,7 @@ pipeline {
                 bat "docker-compose -f docker-compose.yml -f docker-compose.${env.DEPLOY_COLOR}.yml logs"
                 
                 // 롤백 - 새 버전 종료
-                bat "docker-compose -f docker-compose.yml -f docker-compose.${env.DEPLOY_COLOR}.yml down --remove-orphans"
+                bat "docker-compose -f docker-compose.yml -f docker-compose.${env.DEPLOY_COLOR}.yml down"
                 
                 // Nginx 설정 원복
                 if (env.CURRENT_COLOR) {
