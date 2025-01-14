@@ -18,6 +18,8 @@ pipeline {
                 script {
                     // 기본 인프라 시작 (Nginx, Postgres, Redis)
                     bat 'docker-compose up -d'
+                    // 네트워크가 생성되어 있는지 확인하고 없으면 생성
+                    bat 'docker network create test-network || exit 0'
                 }
             }
         }
@@ -41,8 +43,8 @@ pipeline {
         stage('Deploy New Version') {
             steps {
                 script {
-                    // 새로운 버전 배포
-                    bat "docker-compose -f docker-compose.${env.DEPLOY_COLOR}.yml up -d --build"
+                    // 새로운 버전 배포 (기본 compose 파일과 함께 실행)
+                    bat "docker-compose -f docker-compose.yml -f docker-compose.${env.DEPLOY_COLOR}.yml up -d --build"
                 }
             }
         }
@@ -101,8 +103,8 @@ pipeline {
             steps {
                 script {
                     if (env.CURRENT_COLOR != null) {
-                        // 이전 버전이 있다면 종료
-                        bat "docker-compose -f docker-compose.${env.CURRENT_COLOR}.yml down"
+                        // 이전 버전이 있다면 종료 (기본 compose 파일과 함께 실행)
+                        bat "docker-compose -f docker-compose.yml -f docker-compose.${env.CURRENT_COLOR}.yml down --remove-orphans"
                     }
                 }
             }
@@ -113,10 +115,10 @@ pipeline {
         failure {
             script {
                 // 배포 실패시 로그 확인
-                bat "docker-compose -f docker-compose.${env.DEPLOY_COLOR}.yml logs"
+                bat "docker-compose -f docker-compose.yml -f docker-compose.${env.DEPLOY_COLOR}.yml logs"
                 
                 // 롤백 - 새 버전 종료
-                bat "docker-compose -f docker-compose.${env.DEPLOY_COLOR}.yml down"
+                bat "docker-compose -f docker-compose.yml -f docker-compose.${env.DEPLOY_COLOR}.yml down --remove-orphans"
                 
                 // Nginx 설정 원복
                 if (env.CURRENT_COLOR) {

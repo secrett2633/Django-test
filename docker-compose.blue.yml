@@ -21,8 +21,6 @@ services:
         poetry run gunicorn -c gunicorn.conf.py app.core.asgi:application
     networks:
       - test-network
-    depends_on:
-      - ts-postgres
     volumes:
       - ./save:/workdir/save
 
