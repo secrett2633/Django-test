@@ -4,14 +4,21 @@ pipeline {
     environment {
         DOCKER_COMPOSE_VERSION = '3.8'
         WORKSPACE = "${env.WORKSPACE}"
-        DOCKER_COMPOSE_BLUE = "${WORKSPACE}/docker-compose.blue.yml"
-        DOCKER_COMPOSE_GREEN = "${WORKSPACE}/docker-compose.green.yml"
     }
     
     stages {
         stage('Checkout') {
             steps {
                 checkout scm
+            }
+        }
+        
+        stage('Start Infrastructure') {
+            steps {
+                script {
+                    // 기본 인프라 시작 (Nginx, Postgres, Redis)
+                    bat 'docker-compose up -d'
+                }
             }
         }
         
@@ -35,7 +42,7 @@ pipeline {
             steps {
                 script {
                     // 새로운 버전 배포
-                    bat "docker-compose -f docker-compose.${env.DEPLOY_COLOR}.yml -p test-${env.DEPLOY_COLOR} up -d --build"
+                    bat "docker-compose -f docker-compose.${env.DEPLOY_COLOR}.yaml up -d --build"
                 }
             }
         }
@@ -43,7 +50,6 @@ pipeline {
         stage('Health Check') {
             steps {
                 script {
-                    // 새 버전 헬스 체크
                     def maxAttempts = 10
                     def attempts = 0
                     def healthy = false
@@ -86,7 +92,7 @@ pipeline {
                     """
                     
                     // Nginx 재시작
-                    bat 'docker exec test-proxy-${env.DEPLOY_COLOR} nginx -s reload'
+                    bat 'docker exec test-proxy nginx -s reload'
                 }
             }
         }
@@ -94,8 +100,10 @@ pipeline {
         stage('Cleanup Old Version') {
             steps {
                 script {
-                    // 이전 버전이 있다면 종료
-                    bat "docker-compose -f docker-compose.${env.CURRENT_COLOR}.yml -p test-${env.CURRENT_COLOR} down"
+                    if (env.CURRENT_COLOR != null) {
+                        // 이전 버전이 있다면 종료
+                        bat "docker-compose -f docker-compose.${env.CURRENT_COLOR}.yaml down"
+                    }
                 }
             }
         }
@@ -105,10 +113,10 @@ pipeline {
         failure {
             script {
                 // 배포 실패시 로그 확인
-                bat "docker-compose -f docker-compose.${env.DEPLOY_COLOR}.yml -p test-${env.DEPLOY_COLOR} logs"
+                bat "docker-compose -f docker-compose.${env.DEPLOY_COLOR}.yaml logs"
                 
                 // 롤백 - 새 버전 종료
-                bat "docker-compose -f docker-compose.${env.DEPLOY_COLOR}.yml -p test-${env.DEPLOY_COLOR} down"
+                bat "docker-compose -f docker-compose.${env.DEPLOY_COLOR}.yaml down"
                 
                 // Nginx 설정 원복
                 if (env.CURRENT_COLOR) {
@@ -117,7 +125,7 @@ pipeline {
                         echo     server localhost:${env.CURRENT_PORT}; >> ${WORKSPACE}/nginx/service-url.inc
                         echo } >> ${WORKSPACE}/nginx/service-url.inc
                     """
-                    bat "docker exec test-proxy-${env.CURRENT_COLOR} nginx -s reload"
+                    bat "docker exec test-proxy nginx -s reload"
                 }
             }
         }

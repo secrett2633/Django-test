@@ -6,14 +6,12 @@ services:
     container_name: test-proxy
     restart: always
     ports:
-      - "8000:80"
+      - "80:80"
     volumes:
-      - ./:/etc/nginx/conf.d
+      - ./nginx:/etc/nginx/conf.d
       - ./static:/usr/share/nginx/html/static
     networks:
       - test-network
-    depends_on:
-      - ts-django
 
   ts-postgres:
     image: postgres:13.10-alpine
@@ -26,31 +24,6 @@ services:
       - test-network
     volumes:
       - ts-db:/var/lib/postgresql/data
-
-  ts-django:
-    build:
-      context: .
-    container_name: test-dev
-    restart: always
-    env_file:
-      - .env
-    environment:
-      - PORTS=8000
-      - DJANGO_CONFIGURATION=production
-    command:
-      - /bin/sh
-      - -c
-      - |
-        dockerize -wait tcp://ts-postgres:5432 -timeout 20s
-        poetry run python manage.py makemigrations
-        poetry run python manage.py migrate
-        poetry run gunicorn -c gunicorn.conf.py app.core.asgi:application
-    networks:
-      - test-network
-    depends_on:
-      - ts-postgres
-    volumes:
-      - ./save:/workdir/save
 
   ts-redis:
     image: redis:7.0-alpine
