@@ -25,7 +25,7 @@ pipeline {
         stage('Determine Deploy Target') {
             steps {
                 script {
-                    def blueContainerExists = bat(script: 'docker ps -q -f name=test-dev-blue', returnStdout: true).trim()
+                    def blueContainerExists = bat(script: 'docker ps -q -f name=test-dev-blue')
                     echo "blueContainerExists: ${blueContainerExists}"
                     
                     env.CURRENT_COLOR = blueContainerExists ? 'blue' : 'green'
