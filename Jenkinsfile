@@ -85,15 +85,25 @@ pipeline {
         stage('Switch Traffic') {
             steps {
                 script {
-                    // Nginx 설정 업데이트
+                    // test-proxy Nginx 설정 업데이트
                     bat """
                         echo upstream app { > ${WORKSPACE}/nginx/service-url.inc
                         echo     server localhost:${env.DEPLOY_PORT}; >> ${WORKSPACE}/nginx/service-url.inc
                         echo } >> ${WORKSPACE}/nginx/service-url.inc
                     """
                     
-                    // Nginx 재시작
+                    // test-proxy Nginx 재시작
                     bat 'docker exec test-proxy nginx -s reload'
+
+                    // nginx-nginx-1 컨테이너의 설정 업데이트
+                    bat """
+                        echo set \\$service_url http://210.100.200.131:${env.DEPLOY_PORT}; > temp_service_url.inc
+                        docker cp temp_service_url.inc nginx-nginx-1:/etc/nginx/conf.d/test-backend/service-url.inc
+                        del temp_service_url.inc
+                    """
+
+                    // nginx-nginx-1 Nginx 재시작
+                    bat 'docker exec nginx-nginx-1 nginx -s reload'
                 }
             }
         }
@@ -119,7 +129,7 @@ pipeline {
                 // 롤백 - 새 버전 종료
                 bat "docker-compose -f docker-compose.yml -f docker-compose.${env.DEPLOY_COLOR}.yml down"
                 
-                // Nginx 설정 원복
+                // Nginx 설정 원복 (test-proxy)
                 if (env.CURRENT_COLOR) {
                     bat """
                         echo upstream app { > ${WORKSPACE}/nginx/service-url.inc
@@ -127,6 +137,14 @@ pipeline {
                         echo } >> ${WORKSPACE}/nginx/service-url.inc
                     """
                     bat "docker exec test-proxy nginx -s reload"
+
+                    // nginx-nginx-1 설정도 원복
+                    bat """
+                        echo set \\$service_url http://210.100.200.131:${env.CURRENT_PORT}; > temp_service_url.inc
+                        docker cp temp_service_url.inc nginx-nginx-1:/etc/nginx/conf.d/test-backend/service-url.inc
+                        del temp_service_url.inc
+                    """
+                    bat "docker exec nginx-nginx-1 nginx -s reload"
                 }
             }
         }
