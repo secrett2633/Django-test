@@ -96,11 +96,9 @@ pipeline {
                     bat 'docker exec test-proxy nginx -s reload'
 
                     // nginx-nginx-1 컨테이너의 설정 업데이트
-                    bat '''
-                        (echo set $service_url http://210.100.200.131:%DEPLOY_PORT%;) > temp_service_url.inc
-                        docker cp temp_service_url.inc nginx-nginx-1:/etc/nginx/conf.d/test-backend/service-url.inc
-                        del temp_service_url.inc
-                    '''
+                    bat """
+                        docker exec nginx-nginx-1 /bin/sh -c 'echo "set \\$service_url http://210.100.200.131:${env.DEPLOY_PORT};" > /etc/nginx/conf.d/test-backend/service-url.inc'
+                    """
 
                     // nginx-nginx-1 Nginx 재시작
                     bat 'docker exec nginx-nginx-1 nginx -s reload'
@@ -139,11 +137,9 @@ pipeline {
                     bat "docker exec test-proxy nginx -s reload"
 
                     // nginx-nginx-1 설정도 원복
-                    bat '''
-                        (echo set $service_url http://210.100.200.131:%CURRENT_PORT%;) > temp_service_url.inc
-                        docker cp temp_service_url.inc nginx-nginx-1:/etc/nginx/conf.d/test-backend/service-url.inc
-                        del temp_service_url.inc
-                    '''
+                    bat """
+                        docker exec nginx-nginx-1 /bin/sh -c 'echo "set \\$service_url http://210.100.200.131:${env.CURRENT_PORT};" > /etc/nginx/conf.d/test-backend/service-url.inc'
+                    """
                     bat "docker exec nginx-nginx-1 nginx -s reload"
                 }
             }
