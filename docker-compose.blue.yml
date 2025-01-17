@@ -8,6 +8,8 @@ services:
     restart: always
     env_file:
       - .env
+    ports:
+      - 8000:8000
     environment:
       - PORTS=8000
       - DJANGO_CONFIGURATION=production
