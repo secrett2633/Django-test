@@ -30,3 +30,4 @@ networks:
   test-network:
     external: true
     name: test-network
+    driver: bridge
