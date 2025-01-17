@@ -13,15 +13,6 @@ pipeline {
             }
         }
         
-        stage('Start Infrastructure') {
-            steps {
-                script {
-                    // 기본 인프라 시작 (Nginx, Postgres, Redis)
-                    bat 'docker-compose up -d'
-                }
-            }
-        }
-        
         stage('Determine Deploy Target') {
             steps {
                 script {
