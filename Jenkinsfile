@@ -97,7 +97,7 @@ pipeline {
 
                     // nginx-nginx-1 컨테이너의 설정 업데이트
                     bat """
-                        docker exec nginx-nginx-1 /bin/sh -c 'echo "set ${service_url} http://210.100.200.131:${env.DEPLOY_PORT};" > /etc/nginx/conf.d/test-backend/service-url.inc'
+                        docker exec nginx-nginx-1 /bin/sh -c '(echo "set $service_url http://210.100.200.131:${env.DEPLOY_PORT};") > /etc/nginx/conf.d/test-backend/service-url.inc'
                     """
 
                     // nginx-nginx-1 Nginx 재시작
@@ -138,7 +138,7 @@ pipeline {
 
                     // nginx-nginx-1 설정도 원복
                     bat """
-                        docker exec nginx-nginx-1 /bin/sh -c 'echo "set ${service_url} http://210.100.200.131:${env.CURRENT_PORT};" > /etc/nginx/conf.d/test-backend/service-url.inc'
+                        docker exec nginx-nginx-1 /bin/sh -c '(echo "set $service_url http://210.100.200.131:${env.CURRENT_PORT};") > /etc/nginx/conf.d/test-backend/service-url.inc'
                     """
                     bat "docker exec nginx-nginx-1 nginx -s reload"
                 }
